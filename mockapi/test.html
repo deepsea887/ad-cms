@@ -1,0 +1,86 @@
+ <meta charset="utf-8">
+    <title>Boss直聘-互联网招聘神器【官网】</title>
+    <link href="/v2/chat_v2/css/pages/home.css" rel="stylesheet" type="text/css">
+    <script src="http://s.kanzhun.com/js/jquery-1.11.0.min.js"></script>
+    <script src="http://s.kanzhun.com/js/html5shiv.js"></script>
+    <script> var require={urlArgs: "v=v1.7.4"}</script>
+    <script data-main="/v2/chat_v2/js/pages/index" src="http://m.kanzhun.com/v2/js/require.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            function show_ts() {
+                var Tishi = $(".scan_error");
+                Tishi.fadeIn(500)
+            }
+            function poll() {
+                $.ajax({
+                    type: "GET",
+                    url: "/scan?uuid=${qrId}",
+                    dataType: "json",
+                    cache: false,
+                    timeout: 100000,
+                    success: function (data) {
+                        if (data.scaned) {
+                            if (('validate' in data ) && data.validate) {
+                                window.location.href = "/qrweb/edit?qrId=${qrId}";
+                            } else if (('allweb' in data) && data.allweb) {
+                                window.location.href = "http://<%=domain%>/qrscan/dispatcher?qrId=${qrId}";
+                            } else if (('validate' in data ) && !data.validate){
+                                show_ts();
+                                setTimeout("window.location.reload()", 3000); //三秒后自动跳转
+                            }else {
+                                setTimeout("window.location.reload()", 3000); //三秒后自动跳转
+                            }
+                        }
+                        else {
+                            poll();
+                        }
+                    },
+                    error: function () {
+                        setTimeout(function () {
+                            poll();
+                        }, 5000);
+                    }
+                });
+            }
+            poll();
+
+            var $main = $('.main'),
+                mainWidth = $main.width(),
+                mainHeight = $main.height(),
+                scale = $(window).height() / 1000;
+
+            $.support.css3Property = function(prop){
+                var div = document.createElement('div'),
+                    vendors = ['Webkit', 'Moz', 'O', 'Ms'],
+                    len = vendors.length;
+                if (prop in div.style){
+                    return true;
+                }
+
+                prop = prop.replace(/^[a-z]/, function(str){
+                    return str.toUpperCase();
+                });
+                while(len--){
+                    if(vendors[len] + prop in div.style){
+                        return true;
+                    }
+                }
+                return false;
+            };
+
+            if ($.support.css3Property('transform')) {
+                $main.css({
+                    '-weikit-transform': 'scale('+scale+')',
+                    '-moz-transform': 'scale('+scale+')',
+                    'transform': 'scale('+scale+')'
+                });
+            } else {
+                $main.css({
+                    'zoom': scale,
+                    'margin-left': -(mainWidth * scale / 2) + 'px',
+                    'margin-top': -(mainHeight * scale / 2) + 'px'
+                });
+            }
+        })
+    </script>
+</head>
